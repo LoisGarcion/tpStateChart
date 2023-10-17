@@ -16,11 +16,61 @@ let polyline // La polyline en cours de construction;
 
 const polylineMachine = createMachine(
     {
-        /** @xstate-layout N4IgpgJg5mDOIC5gF8A0IB2B7CdGgAcsAbATwBkBLDMfEI2SgF0qwzoA9EBaANnVI9eAOgAM4iZMkB2ZGnokK1MMMoRitJAsYs2nRABYATAMQAOAIzCD0gJwXetgwGZezgw9ty5QA */
+        /** @xstate-layout N4IgpgJg5mDOIC5QAcD2AbAngGQJYDswA6XCdMAYgFkB5AVQGUBRAYWwEkWBpAbQAYAuohSpYuAC65U+YSAAeiACwB2AMxFFANgBMAVlWrtADgCMJxSf0AaEJkTbtfIgE5li5881Htn1X30AvgE2aFh4hEQQAE4AhgDuBFDU9MxsnLyCsmhiktKyCgiaTtruHs66ukaKqsomyjZ2CDUmGnxtDkaqmpq6ykZBIRg4BMTR8YnJjKwc3DwmQkgg2RJSMosFqrrORDq6fNrK+8q6PYoNiKommkSGe3xmzm1emwNLQ+GjsQn4SbRTtAA1Jj8BYiHKrfKIMzaG5eNymWrOSzaTTnBAHa7+dq6FHaTbKbSvULDCJjb5JJj4cRgKIgrKiFZ5dYXLY7PRHI4nXRnWwXbpEfZ3S6XIx8RSKXRE94jSJfCaU6m0+b08FM0AFIy6FyXFFivqWRRGNEOa6bdoGRw6aFSsIysny2AAYxiyDAdMWy1ya3VLO2uw5By5PMaWhaNT25gOnWU5RtJM+4x+FAAQjFHQBrWDINNuzIehleyEIRTaNEmS4Ctr3bR1RRioqS4JvW2kuVJ1MZrM5uagt6q73yRA9IgnIzKQ4GEzOUx8VG8hCmG5Vkz7Qx+DyKIJN-CoCBwektsAqxkDgoAWjnjQvcY+JDIR-z-aLmglRFMem6XXLh10aNURmuIoqz2HEx1MRtBkPWVEygY9C2ZBByxaGsSmcOtHBjfRVDRFQWmOdoxRXcoqi3AIgA */
         id: "polyLine",
         initial: "idle",
         states : {
             idle: {
+                on: {
+                    MOUSECLICK: {
+                        target: "drawing",
+                        actions: ["createLine"],
+                    },
+                }
+            },
+
+            drawing: {
+                on: {
+                    MOUSECLICK: [{
+                        target: "drawing",
+                        internal: true,
+                        actions: ["addPoint"],
+                        cond: "pasPlein"
+                    }, {
+                        target: "idle",
+                    }],
+
+                    MOUSEMOVE: {
+                        target: "drawing",
+                        internal: true,
+                        actions: ["setLastPoint"],
+                    },
+
+                    Escape: {
+                        target: "idle",
+                        actions: ["abandon"]
+                    },
+
+                    Backspace: [{
+                        target: "drawing",
+                        internal: true,
+                        cond: "plusDeDeuxPoints",
+                        actions: ["removeLastPoint"]
+                    }, {
+                        target: "drawing",
+                        internal: true
+                    }],
+
+                    Enter: [{
+                        target: "idle",
+                        internal: true,
+                        cond: "plusDeDeuxPoints",
+                        actions: ["saveLine"]
+                    }, {
+                        target: "drawing",
+                        internal: true
+                    }]
+                }
             }
         }
     },
